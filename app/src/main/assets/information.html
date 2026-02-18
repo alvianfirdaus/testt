@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Information</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body {
+            background-color: #000;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Background Image Fullscreen */
+        .info-hero {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 0.5s ease-in-out;
+            z-index: 1;
+        }
+
+        /* Overlay gelap agar teks terbaca */
+        .info-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9));
+            z-index: 2;
+        }
+
+        /* --- TOMBOL NAVIGASI --- */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 50px; 
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            border-radius: 50%; /* Membuat tombol bulat */
+            margin: 0 20px;
+        }
+
+        .nav-btn:hover { background: #e50914; }
+        .prev-btn { left: 0; }
+        .next-btn { right: 0; }
+
+        /* --- PANEL INFO BAWAH --- */
+        .info-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 30px 50px; 
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            min-height: 200px; 
+            border-top: 1px solid #333;
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .info-title {
+            font-size: 1.8rem; 
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .expand-icon {
+            font-size: 1.2rem; 
+            color: #ddd;
+        }
+
+        .info-desc {
+            font-size: 0.95rem; 
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 20px;
+            max-width: 90%;
+        }
+
+        .info-specs {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.9rem; 
+            color: #bbb;
+        }
+        
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .spec-item i {
+            color: #e50914;
+            width: 20px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="info-hero" id="hero-bg"></div>
+
+    <button class="nav-btn prev-btn" onclick="changeSlide(-1)">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="nav-btn next-btn" onclick="changeSlide(1)">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <div class="info-bar">
+        <div class="info-header">
+            <h1 class="info-title" id="info-title">Loading...</h1>
+            <i class="fas fa-info-circle expand-icon"></i>
+        </div>
+        
+        <p class="info-desc" id="info-desc">
+            Please wait while we load the information.
+        </p>
+        
+        <div class="info-specs" id="info-specs">
+        </div>
+    </div>
+
+    <script>
+        // Data Fasilitas (LENGKAP DENGAN ID)
+        // Pastikan ID di sini sama dengan ID di link index.html (?id=...)
+        const facilities = [
+            {
+                id: "swimming",
+                title: "Infinity Swimming Pool",
+                image: "images/swiming.png", 
+                desc: "Enjoy your day by swimming in our heated infinity swimming pool and open air jacuzzi with a gentle pressure for massage relaxation overlooking the beauty of the valley. Our little friends can also soak in our kids pool.",
+                specs: [
+                    "Size: 20 x 5 m (Adults)",
+                    "Size: 3 x 6 m (Children)",
+                    "Open 06:00 AM - 08:00 PM"
+                ]
+            },
+            {
+                id: "garden",
+                title: "Tropical Garden",
+                image: "images/garden.png",
+                desc: "Take a relaxing walk through our lush tropical garden featuring exotic plants and a serene atmosphere perfect for meditation or morning yoga.",
+                specs: [
+                    "Jogging Track: 500m",
+                    "Yoga Pavilion Available",
+                    "Koi Pond & Zen Area"
+                ]
+            },
+            {
+                id: "gym",
+                title: "Fitness Center / Gym",
+                image: "images/gym.png",
+                desc: "Stay fit during your holiday with our state-of-the-art gym equipment. Open 24 hours for your convenience with professional trainers available upon request.",
+                specs: [
+                    "Cardio Equipment (Treadmills, Bikes)",
+                    "Free Weights Area",
+                    "Personal Trainer Available"
+                ]
+            },
+            {
+                id: "playground",
+                title: "Children Playground",
+                image: "images/children.png",
+                desc: "A safe and fun environment for children to play and make new friends. Supervised by our trained staff with various activities throughout the day.",
+                specs: [
+                    "Indoor & Outdoor Area",
+                    "Age Group: 3 - 12 Years",
+                    "Daily Activities Program"
+                ]
+            },
+            {
+                id: "meeting",
+                title: "Executive Meeting Room",
+                image: "images/meeting.png",
+                desc: "Designed for success, our meeting rooms are equipped with the latest technology and high-speed internet to support your business conferences.",
+                specs: [
+                    "Capacity: Up to 50 Pax",
+                    "High-Speed Wi-Fi & Projector",
+                    "Coffee Break Service"
+                ]
+            }
+        ];
+
+        let currentIndex = 0;
+        const bgEl = document.getElementById('hero-bg');
+        const titleEl = document.getElementById('info-title');
+        const descEl = document.getElementById('info-desc');
+        const specsEl = document.getElementById('info-specs');
+
+        function updateUI() {
+            const item = facilities[currentIndex];
+            
+            // Set Gambar Background dengan fallback jika error
+            bgEl.style.backgroundImage = `url('${item.image}')`;
+            
+            // Set Text
+            titleEl.textContent = item.title;
+            descEl.innerHTML = item.desc;
+            
+            // Render Specs dengan Ikon
+            specsEl.innerHTML = '';
+            item.specs.forEach(spec => {
+                const div = document.createElement('div');
+                div.classList.add('spec-item');
+                // Tambahkan ikon bullet point
+                div.innerHTML = `<i class="fas fa-check-circle"></i> <span>${spec}</span>`; 
+                specsEl.appendChild(div);
+            });
+        }
+
+        function changeSlide(direction) {
+            currentIndex += direction;
+            if (currentIndex < 0) currentIndex = facilities.length - 1;
+            if (currentIndex >= facilities.length) currentIndex = 0;
+            updateUI();
+        }
+
+        // --- LOGIKA UTAMA: BACA URL PARAMETER ---
+        function loadContentFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const facilityId = urlParams.get('id'); // Ambil nilai ?id=...
+
+            if (facilityId) {
+                // Cari index berdasarkan ID
+                const index = facilities.findIndex(item => item.id === facilityId);
+                if (index !== -1) {
+                    currentIndex = index;
+                }
+            }
+            // Jika ID tidak ada atau salah, tetap gunakan currentIndex default (0)
+            updateUI();
+        }
+
+        // Navigasi Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Backspace' || e.key === 'Escape') {
+                window.location.href = 'index.html'; 
+            }
+        });
+
+        // Jalankan saat load
+        loadContentFromURL();
+
+    </script>
+</body>
+</html>

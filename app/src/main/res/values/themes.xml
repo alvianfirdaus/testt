@@ -1,0 +1,11 @@
+<resources>
+
+    <style name="Theme.MyApplication.Fullscreen"
+        parent="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+
+        <!-- Matikan focus highlight Android TV -->
+        <item name="android:defaultFocusHighlightEnabled">false</item>
+
+    </style>
+
+</resources>
